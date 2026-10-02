@@ -12,3 +12,6 @@ class File:
     num_downloads: int = 0
     size_bytes: int
     max_downloads: int | None
+
+class NoMatchingFileError(Exception):
+    pass
