@@ -22,6 +22,11 @@ CREATE TABLE IF NOT EXISTS files (
 ) STRICT; 
 """
 
+FILE_COLUMNS = """
+    stored_name, original_name, share_token, manager_token_hash, password_hash,
+    created_at, expire_at, num_downloads, size_bytes, max_downloads
+"""
+
 def connect(path: Path = config.DB_PATH) -> sqlite3.Connection:
     path.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(path)
@@ -47,17 +52,7 @@ def save_file_record(conn: sqlite3.Connection, record: File) -> int:
     assert cursor.lastrowid is not None
     return cursor.lastrowid
 
-def fetch_num_downloads(conn: sqlite3.Connection, manager_token: str) -> int:
-    hashed = security.hash_token(manager_token)
-    row = conn.execute(
-        "SELECT num_downloads FROM files WHERE manager_token_hash = ?",
-        (hashed,),
-    ).fetchone()
-    if row is None:
-        raise NoMatchingFileError(f"No such file")
-    return row["num_downloads"]
-
-def increment_downloads(conn: sqlite3.Connection, share_token: str):
+def increment_downloads(conn: sqlite3.Connection, share_token: str) -> None:
     with conn:
         cursor = conn.execute(
             "UPDATE files SET num_downloads = num_downloads + 1 WHERE share_token = ?",
@@ -65,45 +60,6 @@ def increment_downloads(conn: sqlite3.Connection, share_token: str):
         )
     if cursor.rowcount == 0:
         raise NoMatchingFileError(f"No such file for {share_token}")
-
-def has_downloads_remaining(conn: sqlite3.Connection, share_token: str) -> bool:
-    row = conn.execute(
-        "SELECT num_downloads, max_downloads FROM files WHERE share_token = ?",
-        (share_token,),
-    ).fetchone()
-    if row is None:
-        raise NoMatchingFileError("No file for this share token")
-    if row["max_downloads"] is None:
-        return True
-    return row["num_downloads"] < row["max_downloads"]
-
-def get_password_hash(conn: sqlite3.Connection, share_token: str) -> str | None:
-    row = conn.execute(
-        "SELECT password_hash FROM files WHERE share_token = ?",
-        (share_token,),
-    ).fetchone()
-    if row is None:
-        raise NoMatchingFileError(f"No such file for {share_token}")
-    return row["password_hash"]
-
-def get_original_name(conn: sqlite3.Connection, share_token: str) -> str | None:
-    row = conn.execute(
-        "SELECT original_name FROM files WHERE share_token = ?",
-        (share_token,),
-    ).fetchone()
-    if row is None:
-        raise NoMatchingFileError(f"No such file for {share_token}")
-    return row["original_name"]
-
-def get_expiry_time(conn: sqlite3.Connection, manager_token: str) -> int | None:
-    hashed = security.hash_token(manager_token)
-    row = conn.execute(
-        "SELECT expire_at FROM files WHERE share_token = ?",
-        (hashed,),
-    ).fetchone()
-    if row is None:
-        raise NoMatchingFileError(f"No such file")
-    return row["expire_at"]
 
 def delete_file_record(conn: sqlite3.Connection, manager_token: str) -> str:
     hashed = security.hash_token(manager_token)
@@ -123,3 +79,23 @@ def delete_expired_records(conn: sqlite3.Connection, now: int) -> list[str]:
             (now,),
         ).fetchall()
     return [row["stored_name"] for row in rows]
+
+def get_by_share_token(conn: sqlite3.Connection, share_token: str) -> File:
+    row = conn.execute(
+        f"SELECT {FILE_COLUMNS} FROM files WHERE share_token = ?",
+        (share_token,),
+    ).fetchone()
+    if row is None:
+        raise NoMatchingFileError("No file for this share token")
+    return File(**dict(row))
+
+
+def get_by_manager_token(conn: sqlite3.Connection, manager_token: str) -> File:
+    hashed = security.hash_token(manager_token)
+    row = conn.execute(
+        f"SELECT {FILE_COLUMNS} FROM files WHERE manager_token_hash = ?",
+        (hashed,),
+    ).fetchone()
+    if row is None:
+        raise NoMatchingFileError("No file for this manager token")
+    return File(**dict(row))

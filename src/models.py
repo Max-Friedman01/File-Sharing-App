@@ -15,3 +15,6 @@ class File:
 
 class NoMatchingFileError(Exception):
     pass
+
+class FileTooLargeError(Exception):
+    pass
