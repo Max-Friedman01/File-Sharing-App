@@ -1,6 +1,6 @@
 import sqlite3
 from pathlib import Path
-from models import File, NoMatchingFileError
+from models import FileRecord, NoMatchingFileError
 from dataclasses import asdict
 import security
 import config
@@ -34,7 +34,7 @@ def connect(path: Path = config.DB_PATH) -> sqlite3.Connection:
     conn.row_factory = sqlite3.Row
     return conn
 
-def save_file_record(conn: sqlite3.Connection, record: File) -> int:
+def save_file_record(conn: sqlite3.Connection, record: FileRecord) -> int:
     row = asdict(record)
     with conn:
         cursor = conn.execute(
@@ -80,17 +80,16 @@ def delete_expired_records(conn: sqlite3.Connection, now: int) -> list[str]:
         ).fetchall()
     return [row["stored_name"] for row in rows]
 
-def get_by_share_token(conn: sqlite3.Connection, share_token: str) -> File:
+def get_by_share_token(conn: sqlite3.Connection, share_token: str) -> FileRecord:
     row = conn.execute(
         f"SELECT {FILE_COLUMNS} FROM files WHERE share_token = ?",
         (share_token,),
     ).fetchone()
     if row is None:
         raise NoMatchingFileError("No file for this share token")
-    return File(**dict(row))
+    return FileRecord(**dict(row))
 
-
-def get_by_manager_token(conn: sqlite3.Connection, manager_token: str) -> File:
+def get_by_manager_token(conn: sqlite3.Connection, manager_token: str) -> FileRecord:
     hashed = security.hash_token(manager_token)
     row = conn.execute(
         f"SELECT {FILE_COLUMNS} FROM files WHERE manager_token_hash = ?",
@@ -98,4 +97,4 @@ def get_by_manager_token(conn: sqlite3.Connection, manager_token: str) -> File:
     ).fetchone()
     if row is None:
         raise NoMatchingFileError("No file for this manager token")
-    return File(**dict(row))
+    return FileRecord(**dict(row))

@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 
 @dataclass (kw_only=True)
-class File:
+class FileRecord:
     stored_name: str
     original_name: str
     share_token: str
