@@ -1,0 +1,48 @@
+{% extends "base.html" %} {% block title %}Your links{% endblock %} {% block
+content %}
+<h1>Your file is ready to share</h1>
+<p class="lede">
+  Send the share link to the person you're sending the file to.
+</p>
+
+<div class="ticket">
+  <h2>{{ original_name }}</h2>
+  <dl>
+    <dt>Expires</dt>
+    <dd>{{ expires_at }}</dd>
+    <dt>Downloads</dt>
+    <dd>
+      {% if max_downloads is not none %}{{ max_downloads }} allowed{% else %}No
+      limit{% endif %}
+    </dd>
+    <dt>Password</dt>
+    <dd>{{ "Required" if has_password else "None" }}</dd>
+  </dl>
+</div>
+
+<div class="field">
+  <label for="share-url">Share link</label>
+  <div class="copy">
+    <input id="share-url" type="text" value="{{ share_url }}" readonly />
+    <button type="button" data-copy="share-url">Copy</button>
+  </div>
+</div>
+
+<div class="field">
+  <label for="manage-url">Manage link</label>
+  <div class="copy">
+    <input id="manage-url" type="text" value="{{ manage_url }}" readonly />
+    <button type="button" class="quiet" data-copy="manage-url">Copy</button>
+  </div>
+  <span class="hint"
+    >Keep this one for yourself. It shows how many times the file has been
+    downloaded and lets you delete it early.</span
+  >
+</div>
+
+<p class="notice warn">
+  Save the manage link now. It can't be shown again after you leave this page.
+</p>
+
+<a class="button quiet" href="/">Send another file</a>
+{% endblock %}

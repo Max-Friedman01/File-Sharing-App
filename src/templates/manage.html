@@ -1,0 +1,42 @@
+{% extends "base.html" %} {% block title %}Manage {{ original_name }}{% endblock
+%} {% block content %}
+<h1>{{ original_name }}</h1>
+<p class="lede">Only people with this manage link can see this page.</p>
+
+<dl class="details">
+  <dt>Downloads</dt>
+  <dd>
+    {{ num_downloads }}{% if max_downloads is not none %} of {{ max_downloads
+    }}{% endif %}
+  </dd>
+  <dt>Expires</dt>
+  <dd>{{ expires_at }}</dd>
+  <dt>Uploaded</dt>
+  <dd>{{ created_at }}</dd>
+  <dt>Size</dt>
+  <dd>{{ size }}</dd>
+  <dt>Password</dt>
+  <dd>{{ "Required" if has_password else "None" }}</dd>
+</dl>
+
+<div class="field">
+  <label for="share-url">Share link</label>
+  <div class="copy">
+    <input id="share-url" type="text" value="{{ share_url }}" readonly />
+    <button type="button" data-copy="share-url">Copy</button>
+  </div>
+</div>
+
+<form
+  method="post"
+  action="{{ delete_url }}"
+  class="actions"
+  onsubmit="
+    return confirm(
+      'Delete this file? The share link will stop working straight away.',
+    );
+  "
+>
+  <button type="submit" class="danger">Delete file</button>
+</form>
+{% endblock %}

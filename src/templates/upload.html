@@ -1,0 +1,58 @@
+{% extends "base.html" %} {% block title %}Send a file{% endblock %} {% block
+content %}
+<h1>Send a file</h1>
+<p class="lede">
+  Upload a file to get a private link. The link stops working when it expires or
+  runs out of downloads.
+</p>
+
+{% if error %}
+<p class="notice error" role="alert">{{ error }}</p>
+{% endif %}
+
+<form method="post" action="/upload" enctype="multipart/form-data">
+  <div class="field">
+    <label for="file">File</label>
+    <input id="file" type="file" name="file" required />
+    <span class="hint">Up to {{ max_size_mb }} MB.</span>
+  </div>
+
+  <div class="row">
+    <div class="field">
+      <label for="expiry">Link expires after</label>
+      <select id="expiry" name="expiry" required>
+        {% for value, label in expiry_options.items() %}
+        <option value="{{ value }}">{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="max_downloads">Download limit</label>
+      <input
+        id="max_downloads"
+        type="number"
+        name="max_downloads"
+        min="1"
+        placeholder="No limit"
+      />
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="password">Password</label>
+    <input
+      id="password"
+      type="password"
+      name="password"
+      autocomplete="new-password"
+      placeholder="No password"
+    />
+    <span class="hint"
+      >Optional. Send it to the recipient separately from the link.</span
+    >
+  </div>
+
+  <button type="submit">Upload file</button>
+</form>
+{% endblock %}

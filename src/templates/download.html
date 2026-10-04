@@ -1,0 +1,49 @@
+{% extends "base.html" %} {% block title %}Download {{ original_name }}{%
+endblock %} {% block content %}
+<h1>A file has been shared with you</h1>
+
+<div class="ticket">
+  <h2>{{ original_name }}</h2>
+  <dl>
+    <dt>Size</dt>
+    <dd>{{ size }}</dd>
+    <dt>Expires</dt>
+    <dd>{{ expires_at }}</dd>
+    {% if downloads_left is not none %}
+    <dt>Downloads left</dt>
+    <dd>{{ downloads_left }}</dd>
+    {% endif %}
+  </dl>
+</div>
+
+{% if error %}
+<p class="notice error" role="alert">{{ error }}</p>
+{% endif %}
+
+<form method="post">
+  {% if needs_password %}
+  <div class="field">
+    <label for="password">Password</label>
+    <input
+      id="password"
+      type="password"
+      name="password"
+      required
+      autocomplete="off"
+      {%
+      if
+      error
+      %}
+      aria-invalid="true"
+      {%
+      endif
+      %}
+    />
+    <span class="hint"
+      >The person who sent you this link has the password.</span
+    >
+  </div>
+  {% endif %}
+  <button type="submit">Download</button>
+</form>
+{% endblock %}
