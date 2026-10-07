@@ -7,30 +7,25 @@ The uploader can view how many downloads the file has, and can also delete it an
 
 ### 1
 
-![Upload page](docs/homepage.png)
-
 User can upload file with an optional password, optional download limit, and a chosen expiry timer.
+![Upload page](docs/homepage.png)
 
 ### 2
 
-![Links page](docs/filetoshare.png)
-
 Uploader receieves link to share to recipients, and a link to themselves to manage the uploaded file.
+![Links page](docs/filetoshare.png)
 
 ### 3
 
-![Download page](docs/badpassword.png)
-
 Recipient can downlad file from this page, and the file does not download if password guess is incorrect.
+![Download page](docs/badpassword.png)
 
 ### 4
 
-![Manager page](docs/manager.png)
-
 Uploader can see details of file and delete it at any time.
+![Manager page](docs/manager.png)
 
 ### 5
 
-![Error page](docs/filedeleted.png)
-
 Error page that can signify deleted/non-existent files, expired files, etc.
+![Error page](docs/filedeleted.png)
